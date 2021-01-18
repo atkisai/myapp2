@@ -13,7 +13,7 @@ export default new Vuex.Store({
   mutations: {
       data(state, data){state.data=data},
       sdk(state, data){
-          state.socket=new WebSocket('wss://stream.binance.com:9443/ws/'+data+'@depth')
+          state.socket=new WebSocket('wss://stream.binance.com:9443/ws/'+data.toLowerCase()+'@depth')
           state.socket.addEventListener('message', function (event) {
             state.sdk=event.data;
           })

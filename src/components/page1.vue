@@ -1,10 +1,11 @@
 <template>
 <div class="main">
-    <select class="l menu" @change="sdk(sumbol)" v-model="sumbol">
-        <option value="btcusdt">BTCUSDT</option>
-        <option value="bnbbtc">BNBBTC</option>
-        <option value="ethbtc">ETHBTC</option>
-    </select>
+    <!--<select class="l menu" @change="sdk(sumbol)" v-model="sumbol">-->
+        <!--<option value="btcusdt">BTCUSDT</option>-->
+        <!--<option value="bnbbtc">BNBBTC</option>-->
+        <!--<option value="ethbtc">ETHBTC</option>-->
+    <!--</select>-->
+    <autocomplete class="input" :search="search" @submit="sdk"></autocomplete>
     <!--<select class="l menu" @change="time(second)" v-model="second">-->
         <!--<option value="1000">1s</option>-->
         <!--<option value="5000">5s</option>-->
@@ -63,6 +64,7 @@
                 fixed:'',
                 button:'Stop',
                 styleColor:localStorage.getItem('styleColor')?localStorage.getItem('styleColor'):'1px solid white',
+                list:'',
             }
         },
         created(){
@@ -94,23 +96,30 @@
                 }else{
                     return {'--background-hover': 'green'}
                 }
-            }
+            },
         },
         mounted(){
             this.$store.commit('sdk', this.sumbol)
             axios.get('https://api.binance.com/api/v3/exchangeInfo').then((response) => {
-                console.log(response);
-
+                let list = response.data.symbols
+                console.log(list)
+                let list2 = []
+                for (let i of list){
+                    list2.push(i.symbol)
+                }
+                this.list=list2
             });
         },
         methods:{
             sdk(sumbol){
+                console.log(sumbol)
                 if(sumbol != ''){
                     if (this.$store.state.socket!=''){
                         this.$store.state.socket.close()
                     }
                     this.button='Stop'
                     localStorage.setItem('sumbol',sumbol)
+                    this.sumbol=sumbol
                     this.$store.commit('sdk', sumbol)
                 }else {
                     if (this.$store.state.socket!=''){
@@ -145,6 +154,13 @@
                 }else{
                     setTimeout(()=>console.log(this.second), Number(this.second))
                 }
+            },
+            search(input) {
+                if (input.length < 1) { return [] }
+                return this.list.filter(country => {
+                    return country.toLowerCase()
+                        .startsWith(input.toLowerCase())
+                })
             }
         },
         destroyed(){
@@ -210,4 +226,8 @@
         /*box-shadow: 0 0 11px*/
         /*rgba(33,33,33,.2);*/
     }
+    /*.input{*/
+        /*width: 150px;*/
+        /*text-align: center;*/
+    /*}*/
 </style>
